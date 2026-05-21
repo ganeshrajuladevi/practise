@@ -169,3 +169,10 @@ public int lengthOfLongestSubstring(String s) {
 }
 ```
 
+#### General sliding window thinking pattern
+1. When implementing sliding window, follow this mental checklist:
+2. Expand the window (move right forward)
+3. Check validity (does the window violate the constraint?)
+4. If invalid, shrink until valid ← This is almost always a while loop 
+5. Update answer (max/min length, count, etc.)
+
