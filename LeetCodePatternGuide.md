@@ -147,6 +147,13 @@ for (int right = 0; right < n; right++) {
 - Left pointer moves only when needed (inner while)
 - Use Set/Map to track window state incrementally
 
+#### General sliding window thinking pattern
+1. When implementing sliding window, follow this mental checklist:
+2. Expand the window (move right forward)
+3. Check validity (does the window violate the constraint?)
+4. If invalid, shrink until valid ← This is almost always a while loop
+5. Update answer (max/min length, count, etc.)
+
 ## Problems
 - Best Time to Buy and Sell Stock (single-pass variant)
 - Longest Substring Without Repeating Characters
@@ -169,10 +176,4 @@ public int lengthOfLongestSubstring(String s) {
 }
 ```
 
-#### General sliding window thinking pattern
-1. When implementing sliding window, follow this mental checklist:
-2. Expand the window (move right forward)
-3. Check validity (does the window violate the constraint?)
-4. If invalid, shrink until valid ← This is almost always a while loop 
-5. Update answer (max/min length, count, etc.)
 
