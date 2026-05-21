@@ -17,13 +17,9 @@ suffix[i] = everything after i
 - Product Except Self
 - Trapping Rain Water
 
-## Java snippet
-[paste your working code]
+## Java snippet - Product Except Self
 
----
-
-# 2. Sliding Window Pattern
-...
+```java
 import java.util.Arrays;
 
 public class ProductOfArrayExceptSelf {
@@ -36,16 +32,14 @@ public class ProductOfArrayExceptSelf {
     private static int[] productExceptSelf(int[] nums) {
         int[] result = new int[nums.length];
 
-        // multiply all left elements and store the result at index i
         int prefix = 1;
-        for (int i = 0;i < nums.length;i++) {
+        for (int i = 0; i < nums.length; i++) {
             result[i] = prefix;
             prefix = prefix * nums[i];
         }
 
-        // multiply all right elements and update the result at index i
         int suffix = 1;
-        for (int i = nums.length - 1;i >= 0;i--) {
+        for (int i = nums.length - 1; i >= 0; i--) {
             result[i] = result[i] * suffix;
             suffix = suffix * nums[i];
         }
@@ -53,45 +47,67 @@ public class ProductOfArrayExceptSelf {
         return result;
     }
 }
+```
 
+## Java snippet - Trapping Rain Water (Prefix/Suffix Arrays)
 
-public class TrappingRainWatter {
-    public static void main(String[] args) {
-
-    }
-
+```java
+public class TrappingRainWater {
     public static int trap(int[] height) {
-        // Calculate maxLeft array at each index to store max height from left till ith index
         int[] maxLeft = new int[height.length];
         int maxLeftHeight = 0;
-        for (int i = 0;i < height.length;i++) {
+        for (int i = 0; i < height.length; i++) {
             maxLeftHeight = Math.max(maxLeftHeight, height[i]);
             maxLeft[i] = maxLeftHeight;
         }
 
-        // Calculate maxRight array at each index to store max height from right from i-1th index to 0
         int[] maxRight = new int[height.length];
         int maxRightHeight = 0;
-        for (int i = height.length - 1;i >= 0;i--) {
+        for (int i = height.length - 1; i >= 0; i--) {
             maxRightHeight = Math.max(maxRightHeight, height[i]);
             maxRight[i] = maxRightHeight;
         }
 
-        // Calculate water trapped at each index by taking min(maxLeft[i],maxRight[i]) - height[i]
-        int[] waterTrapped = new int[height.length];
-        for (int i = 0;i < height.length;i++) {
-            int level = Math.min(maxLeft[i],maxRight[i]);
-            if (level - height[i] > 0)
-                waterTrapped[i] = level - height[i];
-            else
-                waterTrapped[i] = 0;
-        }
-
-        // Calculate total water trapped
         int totalWater = 0;
-        for (int i = 0;i < waterTrapped.length;i++) {
-            totalWater += waterTrapped[i];
+        for (int i = 0; i < height.length; i++) {
+            int level = Math.min(maxLeft[i], maxRight[i]);
+            totalWater += Math.max(0, level - height[i]);
         }
         return totalWater;
     }
 }
+```
+
+## Java snippet - Trapping Rain Water (Two Pointers - O(1) space)
+
+```java
+public int trap(int[] height) {
+    int left = 0, right = height.length - 1;
+    int maxLeft = 0, maxRight = 0;
+    int totalWater = 0;
+    
+    while (left <= right) {
+        if (height[left] <= height[right]) { // left is bottleneck
+            if (height[left] >= maxLeft) {
+                maxLeft = height[left];
+            } else {
+                totalWater += (maxLeft - height[left]);
+            }
+            left++;
+        } else { // right is bottleneck
+            if (height[right] > maxRight) {
+                maxRight = height[right];
+            } else {
+                totalWater += (maxRight - height[right]);
+            }
+            right--;
+        }
+    }
+    return totalWater;
+}
+```
+
+---
+
+# 2. Sliding Window Pattern
+...
