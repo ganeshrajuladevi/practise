@@ -154,7 +154,7 @@ public int maxProfit(int[] prices) {
     }
 ```
 
-####General sliding window thinking pattern
+#### General sliding window thinking pattern
 1. When implementing sliding window, follow this mental checklist:
 2. Expand the window (move right forward)
 3. Check validity (does the window violate the constraint?)
