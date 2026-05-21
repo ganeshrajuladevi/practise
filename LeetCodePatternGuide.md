@@ -110,4 +110,46 @@ public int trap(int[] height) {
 ---
 
 # 2. Sliding Window Pattern
-...
+
+## Sliding Window - Variable (Single Pass)
+
+### When to use
+- Finding optimal buy/sell, min/max profit in a sequence
+- One pass with tracking min/max profit seen so far
+
+### Template
+1. Initialize tracker (minSoFar for price, maxSoFar for profit to sell)
+2. Single loop through array
+3. Update tracker or compute result at each step
+
+### Key trick
+Track the "best opportunity so far" and compare current element against it
+
+### Problems
+- Best Time to Buy and Sell Stock
+
+Given an array prices where prices[i] is the price of a stock on day i, find the maximum profit you can make by buying on one day and selling on a later day.
+You can only buy once and sell once.
+If no profit is possible, return 0.
+
+Example:
+    Input: prices = [7, 1, 5, 3, 6, 4]
+    Output: 5 (buy at 1, sell at 6)
+
+### Java snippet
+```java
+public int maxProfit(int[] prices) {
+        int minPrice = Integer.MAX_VALUE;
+        int maxProfit = 0;
+
+        for (int i = 0;i < prices.length;i++) {
+            if (prices[i] < minPrice) {
+                minPrice = prices[i];
+            } else {
+                int profit = prices[i] - minPrice;
+                maxProfit = Math.max(maxProfit, profit);
+            }
+        }
+        return maxProfit;
+    }
+```
