@@ -49,7 +49,7 @@ public class ProductOfArrayExceptSelf {
 }
 ```
 
-## Java snippet - Trapping Rain Water (Prefix/Suffix Arrays)
+## Java snippet - Trapping Rain Water (Prefix/Suffix Arrays) (Time complexity:O(n), Space:O(n))
 
 ```java
 public class TrappingRainWater {
