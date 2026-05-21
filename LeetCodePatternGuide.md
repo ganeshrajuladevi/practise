@@ -111,53 +111,61 @@ public int trap(int[] height) {
 
 # 2. Sliding Window Pattern
 
-## Sliding Window - Variable (Single Pass)
+## When to use
+- Finding optimal subarray/substring with a specific property
+- "Longest/shortest substring/subarray with condition X"
+- Can avoid nested loops by maintaining a window
 
-### When to use
-- Finding optimal buy/sell, min/max profit in a sequence
-- One pass with tracking min/max profit seen so far
+## Types
 
-### Template
-1. Initialize tracker (minSoFar for price, maxSoFar for profit to sell)
-2. Single loop through array
-3. Update tracker or compute result at each step
+### Variable-size window (two pointers)
+- Window grows/shrinks based on condition
+- `right` expands, `left` shrinks when invalid
+- Use `while` loop to shrink until valid
 
-### Key trick
-Track the "best opportunity so far" and compare current element against it
-
-### Problems
-- Best Time to Buy and Sell Stock
-
-Given an array prices where prices[i] is the price of a stock on day i, find the maximum profit you can make by buying on one day and selling on a later day.
-You can only buy once and sell once.
-If no profit is possible, return 0.
-
-Example:
-    Input: prices = [7, 1, 5, 3, 6, 4]
-    Output: 5 (buy at 1, sell at 6)
-
-### Java snippet
+## Template (Variable Window)
 ```java
-public int maxProfit(int[] prices) {
-        int minPrice = Integer.MAX_VALUE;
-        int maxProfit = 0;
+int left = 0, result = 0;
+Set/Map tracker = ...;
 
-        for (int i = 0;i < prices.length;i++) {
-            if (prices[i] < minPrice) {
-                minPrice = prices[i];
-            } else {
-                int profit = prices[i] - minPrice;
-                maxProfit = Math.max(maxProfit, profit);
-            }
-        }
-        return maxProfit;
+for (int right = 0; right < n; right++) {
+    // Add right element to window
+    
+    // Shrink window while invalid
+    while (window is invalid) {
+        // Remove left element
+        left++;
     }
+    
+    // Update result
+    result = Math.max(result, right - left + 1);
+}
 ```
 
-#### General sliding window thinking pattern
-1. When implementing sliding window, follow this mental checklist:
-2. Expand the window (move right forward)
-3. Check validity (does the window violate the constraint?)
-4. If invalid, shrink until valid ← This is almost always a while loop 
-5. Update answer (max/min length, count, etc.)
+## Key trick
+- Right pointer always moves forward (outer loop)
+- Left pointer moves only when needed (inner while)
+- Use Set/Map to track window state incrementally
+
+## Problems
+- Best Time to Buy and Sell Stock (single-pass variant)
+- Longest Substring Without Repeating Characters
+
+## Java snippet - Longest Substring Without Repeating Characters
+```java
+public int lengthOfLongestSubstring(String s) {
+    int left = 0, maxLength = 0;
+    Set<Character> charsInWindow = new HashSet<>();
+
+    for (int right = 0;right < s.length();right++) {
+        while (charsInWindow.contains(s.charAt(right))) {
+            charsInWindow.remove(s.charAt(left));
+            left++;
+        }
+        charsInWindow.add(s.charAt(right));
+        maxLength = Math.max(maxLength, right - left + 1);
+    }
+    return maxLength;
+}
+```
 
