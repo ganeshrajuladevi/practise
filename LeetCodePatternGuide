@@ -1,0 +1,97 @@
+# 1. Prefix/Suffix Pattern
+
+## When to use
+- Need product/sum/max of all elements except current
+- Combine information from both sides
+
+## Template
+1. Left pass: build prefix
+2. Right pass: build suffix  
+3. Combine
+
+## Key trick
+prefix[i] = everything before i
+suffix[i] = everything after i
+
+## Problems
+- Product Except Self
+- Trapping Rain Water
+
+## Java snippet
+[paste your working code]
+
+---
+
+# 2. Sliding Window Pattern
+...
+import java.util.Arrays;
+
+public class ProductOfArrayExceptSelf {
+    public static void main(String[] args) {
+        int nums[] = new int[]{-1,0,1,2,3};
+        nums = new int[]{1,2,4,6};
+        System.out.println(Arrays.toString(productExceptSelf(nums)));
+    }
+
+    private static int[] productExceptSelf(int[] nums) {
+        int[] result = new int[nums.length];
+
+        // multiply all left elements and store the result at index i
+        int prefix = 1;
+        for (int i = 0;i < nums.length;i++) {
+            result[i] = prefix;
+            prefix = prefix * nums[i];
+        }
+
+        // multiply all right elements and update the result at index i
+        int suffix = 1;
+        for (int i = nums.length - 1;i >= 0;i--) {
+            result[i] = result[i] * suffix;
+            suffix = suffix * nums[i];
+        }
+
+        return result;
+    }
+}
+
+
+public class TrappingRainWatter {
+    public static void main(String[] args) {
+
+    }
+
+    public static int trap(int[] height) {
+        // Calculate maxLeft array at each index to store max height from left till ith index
+        int[] maxLeft = new int[height.length];
+        int maxLeftHeight = 0;
+        for (int i = 0;i < height.length;i++) {
+            maxLeftHeight = Math.max(maxLeftHeight, height[i]);
+            maxLeft[i] = maxLeftHeight;
+        }
+
+        // Calculate maxRight array at each index to store max height from right from i-1th index to 0
+        int[] maxRight = new int[height.length];
+        int maxRightHeight = 0;
+        for (int i = height.length - 1;i >= 0;i--) {
+            maxRightHeight = Math.max(maxRightHeight, height[i]);
+            maxRight[i] = maxRightHeight;
+        }
+
+        // Calculate water trapped at each index by taking min(maxLeft[i],maxRight[i]) - height[i]
+        int[] waterTrapped = new int[height.length];
+        for (int i = 0;i < height.length;i++) {
+            int level = Math.min(maxLeft[i],maxRight[i]);
+            if (level - height[i] > 0)
+                waterTrapped[i] = level - height[i];
+            else
+                waterTrapped[i] = 0;
+        }
+
+        // Calculate total water trapped
+        int totalWater = 0;
+        for (int i = 0;i < waterTrapped.length;i++) {
+            totalWater += waterTrapped[i];
+        }
+        return totalWater;
+    }
+}
