@@ -157,6 +157,25 @@ for (int right = 0; right < n; right++) {
 ## Problems
 - Best Time to Buy and Sell Stock (single-pass variant)
 - Longest Substring Without Repeating Characters
+- Longest Repeating Character Replacement
+
+## Java snippet - Best Time to Buy and Sell Stock (single-pass variant)
+```java
+public int maxProfit(int[] prices) {
+        int minPrice = Integer.MAX_VALUE;
+        int maxProfit = 0;
+
+        for (int i = 0;i < prices.length;i++) {
+            if (prices[i] < minPrice) {
+                minPrice = prices[i];
+            } else {
+                int profit = prices[i] - minPrice;
+                maxProfit = Math.max(maxProfit, profit);
+            }
+        }
+        return maxProfit;
+    }
+```
 
 ## Java snippet - Longest Substring Without Repeating Characters
 ```java
@@ -204,3 +223,186 @@ public int characterReplacement(String s, int k) {
     return maxLength;
 }
 ```
+
+## Two Pointers Pattern
+
+### When to use:
+- Array is sorted (or can be sorted)
+- Looking for pairs/triplets with specific property
+- Need O(1) space
+- Comparing elements from opposite ends or different speeds
+
+### Core technique:
+- Pointers at opposite ends (most common)
+- Move based on comparison logic
+- Skip duplicates when needed (for unique results)
+
+### Template (Basic Two Pointers)
+```java
+int left = 0, right = array.length - 1;
+
+while (left < right) {
+    // Calculate current result
+    int sum = array[left] + array[right];
+    
+    // Make decision based on comparison
+    if (sum < target) {
+        left++;   // Need larger value
+    } else if (sum > target) {
+        right--;  // Need smaller value
+    } else {
+        // Found answer
+        return result;
+    }
+}
+```
+
+### Problems:
+1. Two Sum II (Easy) - Basic two pointers
+2. 3Sum (Medium) - Loop + two pointers, duplicate handling
+3. Container With Most Water (Medium) - Greedy two pointers
+
+---
+
+### Two Pointers - Two Sum II (Sorted Array)
+
+**Problem:** Given a sorted array, find two numbers that sum to target. Return 1-indexed positions.
+
+**Key insight:** Use sorted property - move left for larger sum, move right for smaller sum
+
+**Complexity:** Time O(n), Space O(1)
+
+```java
+public int[] twoSum(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    
+    while (left < right) {
+        int sum = nums[left] + nums[right];
+        
+        if (sum < target) {
+            left++;   // Need larger sum
+        } else if (sum > target) {
+            right--;  // Need smaller sum
+        } else {
+            return new int[]{left + 1, right + 1};  // 1-indexed
+        }
+    }
+    
+    return new int[]{};  // No solution found
+}
+```
+
+**Why it works:**
+- Array is sorted, so moving left increases sum, moving right decreases sum
+- Each step eliminates one possibility - no backtracking needed
+- O(n) because each pointer moves at most n times
+
+---
+
+### Two Pointers - 3Sum
+
+**Problem:** Find all unique triplets [a, b, c] that sum to 0
+
+**Key insight:** Fix one number, use two pointers for the other two (converts to Two Sum II)
+
+**Challenge:** Avoid duplicate triplets by skipping duplicate values
+
+**Complexity:** Time O(n²), Space O(1) (excluding output)
+
+```java
+public List<List<Integer>> threeSum(int[] nums) {
+    Arrays.sort(nums);  // MUST sort first
+    List<List<Integer>> result = new ArrayList<>();
+    
+    for (int i = 0; i < nums.length; i++) {
+        // Skip duplicate first element
+        if (i > 0 && nums[i] == nums[i - 1]) {
+            continue;
+        }
+        
+        // Two pointer search for remaining two numbers
+        int left = i + 1;
+        int right = nums.length - 1;
+        int target = -nums[i];  // Need two numbers that sum to -nums[i]
+        
+        while (left < right) {
+            int sum = nums[left] + nums[right];
+            
+            if (sum < target) {
+                left++;
+            } else if (sum > target) {
+                right--;
+            } else {
+                // Found valid triplet
+                result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                
+                // Skip duplicate left values
+                while (left < right && nums[left] == nums[left + 1]) {
+                    left++;
+                }
+                left++;
+                
+                // Skip duplicate right values
+                while (left < right && nums[right] == nums[right - 1]) {
+                    right--;
+                }
+                right--;
+            }
+        }
+    }
+    
+    return result;
+}
+```
+
+**Three places to skip duplicates:**
+1. **Outer loop (i):** Skip if same as previous i
+2. **After finding triplet (left):** Skip duplicate left values
+3. **After finding triplet (right):** Skip duplicate right values
+
+**Why sort?** Two pointers only works on sorted arrays - need to make smart decisions about which pointer to move
+
+**Time complexity breakdown:**
+- Sorting: O(n log n)
+- Outer loop: O(n)
+- Inner two pointers: O(n)
+- Total: O(n²)
+
+---
+
+### Two Pointers - Container With Most Water
+
+**Problem:** Find two lines that form container holding most water
+
+**Key insight:** Greedy approach - always move the pointer pointing to the shorter line
+
+**Why?** Width always decreases when moving inward, so we need taller height to potentially increase area
+
+**Complexity:** Time O(n), Space O(1)
+
+```java
+public int maxArea(int[] heights) {
+    int left = 0, right = heights.length - 1;
+    int maxWater = 0;
+    
+    while (left < right) {
+        // Calculate current area
+        int area = (right - left) * Math.min(heights[left], heights[right]);
+        maxWater = Math.max(maxWater, area);
+        
+        // Move pointer with shorter height (greedy choice)
+        if (heights[left] <= heights[right]) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+    
+    return maxWater;
+}
+```
+
+**Why move shorter pointer?**
+- Water level limited by shorter line
+- Moving taller pointer won't help (still limited by shorter line)
+- Moving shorter pointer might find taller line → potential for larger area
