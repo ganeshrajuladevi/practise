@@ -406,3 +406,117 @@ public int maxArea(int[] heights) {
 - Water level limited by shorter line
 - Moving taller pointer won't help (still limited by shorter line)
 - Moving shorter pointer might find taller line → potential for larger area
+
+---
+
+# 4. Kadane's Algorithm (Dynamic Programming - Maximum Subarray)
+
+## When to use
+- Finding maximum (or minimum) sum of contiguous subarray
+- Array contains **negative numbers**
+- No specific constraint like "window size" or "property condition"
+
+## Core insight
+At each position, decide:
+- **Extend** the previous subarray (add current element)
+- **Start fresh** from current element
+
+Choose whichever gives larger sum.
+
+## Template
+```java
+public int maxSubArray(int[] nums) {
+    int maxSoFar = nums;        // Global maximum
+    int maxEndingHere = nums;   // Maximum ending at current position
+    
+    for (int i = 1; i < nums.length; i++) {
+        // Extend previous OR start fresh (whichever is better)
+        maxEndingHere = Math.max(nums[i], maxEndingHere + nums[i]);
+        
+        // Update global maximum
+        maxSoFar = Math.max(maxSoFar, maxEndingHere);
+    }
+    
+    return maxSoFar;
+}
+```
+
+## Key trick
+- If `maxEndingHere` becomes negative, starting fresh is better
+- This is automatically handled by `max(nums[i], maxEndingHere + nums[i])`
+
+## Complexity
+- **Time:** O(n) - Single pass
+- **Space:** O(1) - Two variables only
+
+## When to use Kadane's vs. Sliding Window?
+
+| Feature | Kadane's Algorithm | Sliding Window |
+|---------|-------------------|----------------|
+| **Problem type** | Maximum/minimum sum subarray | Subarray with specific property |
+| **Has negatives?** | ✅ Yes | ❌ Usually only works with positives |
+| **Window validity** | No "invalid" state | Clear valid/invalid condition |
+| **Decision** | Extend vs. start fresh | Expand vs. shrink window |
+
+**Bottom line:** If the problem asks for "maximum sum" with negative numbers, think Kadane's first!
+
+## Problems
+- Maximum Subarray (LeetCode #53)
+
+## Example 
+
+---
+
+# 5. Stack Pattern – Valid Parentheses
+
+## When to use
+- Need to match opening and closing symbols in order (parentheses, brackets, tags).
+- Must check that things are properly nested and fully closed.
+- Typical problem phrases: "valid parentheses", "balanced brackets", "well-formed expression".
+
+## Core idea
+- Use a stack to remember the opening symbols seen so far.
+- For each closing symbol, compare it with the most recent opening symbol on top of the stack.
+- At the end, the stack must be empty (no unmatched openings left).
+
+## Java snippet – Valid Parentheses (HashMap + Stack)
+
+```java
+public boolean isValid(String s) {
+    Map<Character, Character> validBraces = new HashMap<>();
+    validBraces.put(')', '(');
+    validBraces.put('}', '{');
+    validBraces.put(']', '[');
+
+    Deque<Character> stack = new ArrayDeque<>();
+
+    for (int i = 0; i < s.length(); i++) {
+        char currChar = s.charAt(i);
+
+        // If it's an opening brace, push to stack
+        if (currChar == '(' || currChar == '{' || currChar == '[') {
+            stack.push(currChar);
+        } else {
+            // currChar is a closing brace
+            if (stack.isEmpty()) {
+                return false; // nothing to match with
+            }
+            char top = stack.peek();
+            char expectedOpen = validBraces.get(currChar);
+            if (top == expectedOpen) {
+                stack.pop(); // matched pair
+            } else {
+                return false; // mismatched pair
+            }
+        }
+    }
+
+    // All opening braces must be closed
+    return stack.isEmpty();
+}
+```
+
+## Key tricks
+- Store mapping as closing → opening, so `validBraces.get(closing)` gives the expected opening.
+- Always check `stack.isEmpty()` before `peek()` or `pop()` to avoid errors.
+- Final `stack.isEmpty()` catches leftover opens like "(((" that never get closed.
