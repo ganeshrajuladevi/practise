@@ -467,19 +467,28 @@ public int maxSubArray(int[] nums) {
 
 ---
 
-# 5. Stack Pattern – Valid Parentheses
+# 5. Stack Pattern
 
 ## When to use
 - Need to match opening and closing symbols in order (parentheses, brackets, tags).
-- Must check that things are properly nested and fully closed.
-- Typical problem phrases: "valid parentheses", "balanced brackets", "well-formed expression".
+- Need to process nested structures and ensure they are properly closed.
+- Need to “go back to the most recent unfinished thing” (LIFO behavior).
+- Typical problem phrases: "valid parentheses", "balanced brackets", "well-formed expression", "next greater element", "undo last operation".
 
 ## Core idea
-- Use a stack to remember the opening symbols seen so far.
-- For each closing symbol, compare it with the most recent opening symbol on top of the stack.
-- At the end, the stack must be empty (no unmatched openings left).
+- Use a stack to remember items that are waiting to be matched or completed.
+- Push when you start something (open bracket, open tag, new context).
+- Pop when you finish something (close bracket, end tag, leaving context).
+- At the end, stack should be empty if everything matched correctly.
 
-## Java snippet – Valid Parentheses (HashMap + Stack)
+### 5.1 Valid Parentheses
+
+**Problem:** Check if a string of brackets is valid (properly nested and closed).
+
+**Key insight:**  
+Use a stack to store opening brackets. For each closing bracket, the top of the stack must be the matching opening bracket.
+
+**Complexity:** Time O(n), Space O(n)
 
 ```java
 public boolean isValid(String s) {
@@ -493,13 +502,13 @@ public boolean isValid(String s) {
     for (int i = 0; i < s.length(); i++) {
         char currChar = s.charAt(i);
 
-        // If it's an opening brace, push to stack
+        // Opening brace → push
         if (currChar == '(' || currChar == '{' || currChar == '[') {
             stack.push(currChar);
         } else {
-            // currChar is a closing brace
+            // Closing brace → must match top of stack
             if (stack.isEmpty()) {
-                return false; // nothing to match with
+                return false; // nothing to match
             }
             char top = stack.peek();
             char expectedOpen = validBraces.get(currChar);
@@ -511,12 +520,113 @@ public boolean isValid(String s) {
         }
     }
 
-    // All opening braces must be closed
+    // All opens must be closed
     return stack.isEmpty();
 }
 ```
 
-## Key tricks
-- Store mapping as closing → opening, so `validBraces.get(closing)` gives the expected opening.
-- Always check `stack.isEmpty()` before `peek()` or `pop()` to avoid errors.
-- Final `stack.isEmpty()` catches leftover opens like "(((" that never get closed.
+**Key tricks**
+- Map is closing → opening, so `validBraces.get(closing)` gives expected opening.
+- Always check `stack.isEmpty()` before `peek()` or `pop()`.
+- Final `stack.isEmpty()` catches leftover opens like `"((("`.
+
+### 5.2 Min Stack
+
+**Problem:** Design a stack that supports `push`, `pop`, `top`, and `getMin` in O(1) time.
+
+**Key insight:**  
+Use two stacks:
+- `stack` for actual values.
+- `minStack` where each level stores the minimum value of all elements up to that level.
+
+**Complexity:** Time O(1) per operation, Space O(n)
+
+```java
+class MinStack {
+    private Deque<Integer> stack;
+    private Deque<Integer> minStack;
+
+    public MinStack() {
+        stack = new ArrayDeque<>();
+        minStack = new ArrayDeque<>();
+    }
+
+    public void push(int val) {
+        stack.push(val);
+        if (minStack.isEmpty()) {
+            minStack.push(val);
+        } else {
+            int currentMin = minStack.peek();
+            minStack.push(Math.min(currentMin, val));
+        }
+    }
+
+    public void pop() {
+        stack.pop();
+        minStack.pop();
+    }
+
+    public int top() {
+        return stack.peek();
+    }
+
+    public int getMin() {
+        return minStack.peek();
+    }
+}
+```
+
+**Key tricks**
+- `minStack` is always the same size as `stack`.
+- `minStack.peek()` is always the minimum of all current elements in `stack`.
+- No scanning needed; `getMin()` is O(1) because the min at each level is precomputed.
+
+---
+
+## 4.1 Maximum Product Subarray (Kadane variant)
+
+**Problem:** Given an integer array `nums`, find the contiguous subarray within the array that has the largest product and return that product. [web:79][web:80]
+
+**When to use**
+- Need **maximum product** of a contiguous subarray.
+- Array can contain **negatives** and **zeros**.
+- Problem text looks like “maximum product subarray” or “largest product of a contiguous subarray”. [web:83]
+
+**Core insight**
+- Like Kadane’s algorithm, at each index decide whether to **start a new subarray** at `nums[i]` or **extend** a previous one.
+- Because multiplying by a negative number can flip a large positive product to negative and a large negative product to positive, track **both**:
+    - `currMax`: max product ending at this index.
+    - `currMin`: min product ending at this index.
+- The answer `maxProduct` is the maximum of all `currMax` values seen. [web:83][web:60]
+
+**Java snippet – Maximum Product Subarray**
+
+```java
+public int maxProduct(int[] nums) {
+    int currMax = nums;
+    int currMin = nums;
+    int maxProduct = nums;
+
+    for (int i = 1; i < nums.length; i++) {
+        int a = nums[i];
+        int b = currMax * nums[i];
+        int c = currMin * nums[i];
+
+        currMax = Math.max(Math.max(a, b), c);
+        currMin = Math.min(Math.min(a, b), c);
+
+        maxProduct = Math.max(maxProduct, currMax);
+    }
+
+    return maxProduct;
+}
+```
+
+**Key tricks**
+- At each step, consider three candidates for the product ending here:
+    - Start new at current element: `a = nums[i]`.
+    - Extend previous max: `b = currMax * nums[i]`.
+    - Extend previous min: `c = currMin * nums[i]`.
+- `currMax` = max(a, b, c) captures the best product ending at this index.
+- `currMin` = min(a, b, c) keeps the “worst” product, which can become the best later if multiplied by a negative.
+- When `nums[i] == 0`, both `currMax` and `currMin` become 0, effectively resetting the product; `maxProduct` only becomes 0 if no earlier product was larger. [web:80][web:83]
